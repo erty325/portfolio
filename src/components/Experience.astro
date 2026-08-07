@@ -1,0 +1,190 @@
+---
+import { experience } from "../data/profile";
+---
+
+<section id="experiencia" class="exp-section">
+  <div class="wrap">
+    <p class="eyebrow reveal">// log --experiencia</p>
+    <h2 class="section-heading reveal">Experiencia</h2>
+
+    <ol class="timeline">
+      {
+        experience.map((job, i) => (
+          <li class="entry reveal" style={`transition-delay:${i * 90}ms`}>
+            <div class="entry-marker">
+              <span class="node" class:list={{ current: job.current }} />
+              {i < experience.length - 1 && <span class="thread" />}
+            </div>
+
+            <div class="entry-card" class:list={{ current: job.current }}>
+              <div class="entry-title-row">
+                <h3 class="entry-role">{job.role}</h3>
+                {job.current && <span class="current-pill mono">actual</span>}
+              </div>
+              <p class="entry-meta mono">{job.company} · {job.period}</p>
+
+              <ul class="entry-bullets">
+                {job.bullets.map((b) => (
+                  <li>
+                    <svg class="check" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8.5 6.2 12 13 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .exp-section {
+    padding-block: var(--space-section);
+    border-top: 1px solid var(--line);
+  }
+
+  .section-heading {
+    margin-top: 0.6rem;
+  }
+
+  .timeline {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 1.5rem;
+  }
+
+  .entry-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .node {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+    margin-top: 26px;
+    flex-shrink: 0;
+  }
+
+  .node.current {
+    background: var(--accent);
+    box-shadow: 0 0 0 5px rgba(255, 180, 84, 0.15);
+  }
+
+  .thread {
+    width: 1px;
+    flex: 1;
+    background: var(--line);
+    margin-top: 6px;
+  }
+
+  .entry-card {
+    margin-bottom: 2.25rem;
+    padding: 1.6rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: transform 0.25s var(--ease-out), border-color 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+  }
+
+  .entry-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-2);
+    box-shadow: 0 20px 40px -28px rgba(94, 234, 212, 0.35);
+  }
+
+  .entry-card.current {
+    border-color: rgba(255, 180, 84, 0.35);
+    box-shadow: 0 20px 40px -28px rgba(255, 180, 84, 0.25);
+  }
+
+  .entry-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .entry-role {
+    font-size: var(--fs-lg);
+  }
+
+  .current-pill {
+    font-size: var(--fs-2xs);
+    color: var(--accent);
+    border: 1px solid rgba(255, 180, 84, 0.35);
+    background: rgba(255, 180, 84, 0.1);
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .entry-meta {
+    margin-top: 0.4rem;
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+  }
+
+  .entry-bullets {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .entry-bullets li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+
+  .check {
+    width: 16px;
+    height: 16px;
+    margin-top: 0.25em;
+    flex-shrink: 0;
+    color: var(--accent-2);
+  }
+
+  @media (max-width: 560px) {
+    .entry {
+      grid-template-columns: 1fr;
+    }
+
+    .entry-marker {
+      display: none;
+    }
+
+    .entry-card {
+      padding: 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .entry-role {
+      font-size: var(--fs-base);
+    }
+
+    .entry-bullets {
+      margin-top: 1rem;
+      gap: 0.55rem;
+    }
+
+    .entry-bullets li {
+      font-size: var(--fs-xs);
+    }
+  }
+</style>

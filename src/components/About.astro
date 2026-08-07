@@ -1,0 +1,256 @@
+---
+import { personal, stack } from "../data/profile";
+
+const featuredStack = stack
+  .flatMap((group) => group.items)
+  .filter((item) => !item.name.includes(" "))
+  .slice(0, 6)
+  .map((item) => item.name);
+---
+
+<section id="sobre-mi" class="about-section">
+  <div class="wrap about-grid">
+    <div class="about-copy reveal">
+      <p class="eyebrow">// sobre-mi</p>
+
+      <div class="docstring mono">
+        <p class="cm-open">/**</p>
+        <p class="cm-line">
+          ¡Hola! Soy Miguel, desarrollador de software. Me apasiona crear aplicaciones modernas
+          y resolver problemas mediante el código.
+        </p>
+        <p class="cm-line">
+          Me gusta aprender constantemente y siempre estoy explorando nuevas tecnologías,
+          herramientas y buenas prácticas para seguir creciendo como desarrollador. Disfruto
+          enfrentar nuevos retos y convertir ideas en soluciones funcionales, buscando escribir
+          código limpio, escalable y fácil de mantener.
+        </p>
+        <p class="cm-line">
+          Actualmente continúo fortaleciendo mis conocimientos en arquitectura de software,
+          desarrollo backend y cloud, con el objetivo de construir soluciones de alta calidad.
+        </p>
+        <p class="cm-open">*/</p>
+      </div>
+    </div>
+
+    <div class="window terminal reveal" style="transition-delay:120ms" role="img" aria-label={`Tarjeta de perfil de ${personal.name} en formato de respuesta de API`}>
+      <div class="window-chrome">
+        <span class="chrome-dot"></span>
+        <span class="chrome-dot"></span>
+        <span class="chrome-dot chrome-dot-accent"></span>
+        <span class="chrome-title mono">GET /miguel</span>
+      </div>
+
+      <div class="terminal-body mono">
+        <p class="cmd-line">
+          <span class="prompt">$</span>
+          <span class="cmd-text" id="cmd-text"></span><span class="cmd-caret">_</span>
+        </p>
+
+        <div class="response" id="response">
+          <p class="json-line" style="--i:0"><span class="key">"login"</span>: <span class="str">"LoskoMiguel"</span>,</p>
+          <p class="json-line" style="--i:1"><span class="key">"role"</span>: <span class="str">"Backend Developer"</span>,</p>
+          <p class="json-line" style="--i:2"><span class="key">"location"</span>: <span class="str">"Bello, Antioquia, CO"</span>,</p>
+          <p class="json-line" style="--i:3"><span class="key">"status"</span>: <span class="str accent">"disponible"</span>,</p>
+          <p class="json-line" style="--i:4">
+            <span class="key">"stack"</span>: [{featuredStack.map((item, i) => (
+              <>
+                <span class="str">"{item}"</span>{i < featuredStack.length - 1 ? ", " : ""}
+              </>
+            ))}]
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const el = document.getElementById("cmd-text");
+  const response = document.getElementById("response");
+  const text = "curl -s https://api.miguel.dev/me";
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (el) {
+    if (reduceMotion) {
+      el.textContent = text;
+      response?.classList.add("is-ready");
+    } else {
+      let i = 0;
+      const tick = () => {
+        el.textContent = text.slice(0, i);
+        i++;
+        if (i <= text.length) {
+          setTimeout(tick, 22);
+        } else {
+          response?.classList.add("is-ready");
+        }
+      };
+      setTimeout(tick, 400);
+    }
+  }
+</script>
+
+<style>
+  .about-section {
+    padding-block: var(--space-section);
+    border-top: 1px solid var(--line);
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(300px, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  .docstring {
+    margin-top: 1.5rem;
+    font-size: clamp(0.92rem, 1.4vw, 1.05rem);
+    line-height: 1.8;
+    color: var(--ink-muted);
+  }
+
+  .cm-open {
+    color: var(--ink-faint);
+  }
+
+  .cm-line {
+    position: relative;
+    margin-top: 1rem;
+    padding-left: 1.4em;
+  }
+
+  .cm-line::before {
+    content: "*";
+    position: absolute;
+    left: 0;
+    color: var(--ink-faint);
+  }
+
+  /* Ventana de terminal, compartida visualmente con el resto del sitio */
+  .window {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  }
+
+  .window-chrome {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-elevated-2);
+  }
+
+  .chrome-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+  }
+
+  .chrome-dot-accent {
+    background: var(--accent);
+  }
+
+  .chrome-title {
+    margin-left: 0.6rem;
+    font-size: var(--fs-2xs);
+    color: var(--ink-muted);
+  }
+
+  .terminal-body {
+    padding: 1.5rem;
+    font-size: var(--fs-sm);
+  }
+
+  .cmd-line {
+    color: var(--ink);
+    min-height: 1.4em;
+  }
+
+  .prompt {
+    color: var(--accent-2);
+    margin-right: 0.6em;
+  }
+
+  .cmd-caret {
+    color: var(--accent);
+    animation: blink 1s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .response {
+    margin-top: 1.1rem;
+    padding-top: 1.1rem;
+    border-top: 1px dashed var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .json-line {
+    color: var(--ink-muted);
+    white-space: pre-wrap;
+    word-break: break-word;
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  .response.is-ready .json-line {
+    animation: line-in 0.45s var(--ease-out) forwards;
+    animation-delay: calc(var(--i) * 90ms);
+  }
+
+  @keyframes line-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .key {
+    color: var(--accent-2);
+  }
+
+  .str {
+    color: var(--ink);
+  }
+
+  .str.accent {
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .json-line {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .terminal-body {
+      padding: 1.1rem;
+      font-size: var(--fs-xs);
+    }
+
+    .docstring {
+      font-size: 0.9rem;
+    }
+  }
+</style>

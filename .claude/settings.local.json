@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npm create *)",
+      "Bash(command -v nvm)",
+      "Read(//home/losko/**)",
+      "Bash(npm view *)",
+      "Bash(npm install *)",
+      "Bash(npx astro *)",
+      "Bash(npm i *)",
+      "Bash(npm run *)",
+      "Bash(disown)",
+      "Bash(curl -sf http://localhost:4321/ -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Read(//proc/**)",
+      "Bash(ip addr *)",
+      "Bash(curl *)",
+      "Bash(cd *)",
+      "Bash(node *)",
+      "Bash(pkill -f \"astro dev\")",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -m json.tool /home/losko/Documents/portfolio/vercel.json)",
+      "Bash(echo \"exit: $?\")"
+    ]
+  }
+}

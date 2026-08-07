@@ -1,0 +1,252 @@
+---
+import { siGithub } from "simple-icons";
+import { personal } from "../data/profile";
+
+const channels = [
+  {
+    label: "email",
+    value: personal.email,
+    href: `mailto:${personal.email}`,
+    icon: "mail" as const,
+  },
+  {
+    label: "telefono",
+    value: personal.phoneDisplay,
+    href: `tel:+57${personal.phone}`,
+    icon: "phone" as const,
+  },
+  {
+    label: "github",
+    value: personal.githubHandle,
+    href: personal.github,
+    icon: "github" as const,
+  },
+];
+---
+
+<section id="contacto" class="contact-section">
+  <div class="wrap contact-grid">
+    <div class="contact-copy reveal">
+      <p class="eyebrow">// contacto</p>
+      <h2 class="section-heading">Trabajemos juntos</h2>
+      <p class="contact-lead">
+        Escríbeme si tienes un proyecto en mente.
+      </p>
+
+      <p class="contact-status mono">
+        <span class="dot" aria-hidden="true"></span>
+        {personal.available ? "disponible para nuevos proyectos" : "actualmente ocupado"}
+      </p>
+    </div>
+
+    <div class="contact-card reveal" style="transition-delay:120ms">
+      <p class="request-line mono">
+        <span class="method">POST</span> /contacto <span class="dim">HTTP/1.1</span>
+      </p>
+      <ul class="channels">
+        {
+          channels.map((c) => (
+            <li>
+              <a
+                class="channel-link"
+                href={c.href}
+                target={c.label === "github" ? "_blank" : undefined}
+                rel={c.label === "github" ? "noreferrer" : undefined}
+              >
+                <span class="channel-icon" aria-hidden="true">
+                  {c.icon === "mail" && (
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6" />
+                      <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  )}
+                  {c.icon === "phone" && (
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.5 5.2 2 2 0 0 1 6.5 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  )}
+                  {c.icon === "github" && (
+                    <svg viewBox="0 0 24 24" fill="currentColor" set:html={`<path d="${siGithub.path}"/>`} />
+                  )}
+                </span>
+                <span class="channel-text">
+                  <span class="channel-label mono">{c.label}</span>
+                  <span class="channel-value">{c.value}</span>
+                </span>
+                <span class="channel-go mono" aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact-section {
+    padding-block: var(--space-section);
+    border-top: 1px solid var(--line);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  .section-heading {
+    margin-top: 0.6rem;
+    font-size: var(--fs-2xl);
+  }
+
+  .contact-lead {
+    margin-top: 1.1rem;
+    max-width: 46ch;
+    color: var(--ink-muted);
+    font-size: var(--fs-base);
+  }
+
+  .contact-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    margin-top: 1.6rem;
+    font-size: var(--fs-xs);
+    color: var(--ink-muted);
+  }
+
+  .contact-status .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.15);
+  }
+
+  .contact-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 30px 60px -34px rgba(0, 0, 0, 0.6);
+  }
+
+  .request-line {
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-elevated-2);
+    font-size: var(--fs-xs);
+  }
+
+  .method {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .dim {
+    color: var(--ink-faint);
+  }
+
+  .channels {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .channel-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem 1.4rem;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.2s var(--ease-out), padding-left 0.2s var(--ease-out);
+  }
+
+  .channels li:last-child .channel-link {
+    border-bottom: none;
+  }
+
+  .channel-link:hover {
+    background: var(--bg-elevated-2);
+    padding-left: 1.7rem;
+  }
+
+  .channel-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated-2);
+    border: 1px solid var(--line);
+    color: var(--accent-2);
+  }
+
+  .channel-link:hover .channel-icon {
+    border-color: var(--accent-2);
+  }
+
+  .channel-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .channel-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .channel-label {
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .channel-value {
+    font-size: var(--fs-sm);
+    overflow-wrap: anywhere;
+  }
+
+  .channel-go {
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+
+  .channel-link:hover .channel-go {
+    color: var(--accent);
+  }
+
+  @media (max-width: 800px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .channel-link {
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+
+    .channel-link:hover {
+      padding-left: 1.2rem;
+    }
+
+    .channel-icon {
+      width: 34px;
+      height: 34px;
+    }
+
+    .channel-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+</style>

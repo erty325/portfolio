@@ -1,0 +1,35 @@
+---
+import { personal } from "../data/profile";
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-row">
+    <p class="mono">© {year} {personal.name}</p>
+    <a class="mono back-top" href="#top">↑ volver arriba</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-block: 2rem;
+  }
+
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+  }
+
+  .back-top {
+    transition: color 0.2s var(--ease-out);
+  }
+
+  .back-top:hover {
+    color: var(--accent-2);
+  }
+</style>

@@ -1,0 +1,211 @@
+---
+import * as simpleIcons from "simple-icons";
+import { stack, type StackItem } from "../data/profile";
+
+// Marcas con hex casi negro se leerían invisibles sobre el fondo oscuro:
+// se fuerza su glifo a --ink en vez del color de marca real.
+function luminance(hex: string) {
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const a = [r, g, b].map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+}
+
+function resolveIcon(item: StackItem) {
+  if (!item.icon) return null;
+  const icon = (simpleIcons as Record<string, { path: string; hex: string }>)[item.icon];
+  if (!icon) return null;
+  const color = luminance(icon.hex) < 0.06 ? null : `#${icon.hex}`;
+  return { path: icon.path, color };
+}
+---
+
+<section id="stack" class="stack-section">
+  <div class="wrap">
+    <p class="eyebrow reveal">// stack</p>
+    <h2 class="section-heading reveal">Herramientas que uso a diario</h2>
+
+    <div class="stack-groups">
+      {
+        stack.map((group, gi) => (
+          <div class="stack-group reveal" style={`transition-delay:${(gi % 4) * 60}ms`}>
+            <div class="stack-group-head">
+              <div>
+                <p class="stack-comment mono">{group.comment}</p>
+                <p class="stack-label">{group.label}</p>
+              </div>
+              <span class="stack-index mono">{String(gi + 1).padStart(2, "0")}</span>
+            </div>
+
+            <div class="stack-chips">
+              {group.items.map((item) => {
+                const resolved = resolveIcon(item);
+                const tint = resolved?.color ?? "var(--ink-muted)";
+                return (
+                  <span class="chip" style={`--tint:${tint}`} title={item.name}>
+                    <span class="chip-icon">
+                      {resolved ? (
+                        <svg viewBox="0 0 24 24" fill={resolved.color ?? "currentColor"} set:html={`<path d="${resolved.path}"/>`} />
+                      ) : (
+                        <span class="chip-fallback mono">{item.fallback}</span>
+                      )}
+                    </span>
+                    <span class="chip-name">{item.name}</span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .stack-section {
+    padding-block: var(--space-section);
+    border-top: 1px solid var(--line);
+  }
+
+  .section-heading {
+    margin-top: 0.6rem;
+    max-width: 24ch;
+  }
+
+  .stack-groups {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: stretch;
+    gap: 1.1rem;
+  }
+
+  .stack-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(165deg, var(--bg-elevated) 0%, var(--bg-elevated) 55%, var(--bg-elevated-2) 180%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.3rem 1.4rem 1.25rem;
+    overflow: hidden;
+    transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+  }
+
+  .stack-group::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out);
+  }
+
+  .stack-group:hover {
+    border-color: var(--accent-2);
+    transform: translateY(-3px);
+    box-shadow: 0 22px 44px -30px rgba(0, 0, 0, 0.65);
+  }
+
+  .stack-group:hover::before {
+    opacity: 1;
+  }
+
+  .stack-group-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .stack-index {
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+    opacity: 0.75;
+  }
+
+  .stack-comment {
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+  }
+
+  .stack-label {
+    margin-top: 0.3rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-base);
+  }
+
+  .stack-chips {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.55rem 0.95rem 0.55rem 0.65rem;
+    background: var(--bg-elevated-2);
+    background: color-mix(in srgb, var(--tint) 12%, var(--bg-elevated-2));
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: transform 0.2s var(--ease-out), border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
+  }
+
+  .chip:hover {
+    transform: translateY(-2px);
+    border-color: var(--tint);
+    box-shadow: 0 10px 22px -14px var(--tint);
+  }
+
+  .chip-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    flex-shrink: 0;
+  }
+
+  .chip-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .chip-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    color: var(--ink-muted);
+    font-size: 0.7rem;
+    letter-spacing: -0.03em;
+  }
+
+  .chip-name {
+    font-size: var(--fs-sm);
+    color: var(--ink-muted);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .chip:hover .chip-name {
+    color: var(--ink);
+  }
+
+  @media (max-width: 640px) {
+    .stack-groups {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+
+    .stack-group {
+      padding: 1.15rem 1.2rem 1.1rem;
+    }
+  }
+</style>

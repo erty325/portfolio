@@ -1,0 +1,604 @@
+---
+import { Image } from "astro:assets";
+import { projects } from "../data/profile";
+
+const initialCount = 6;
+const hasMore = projects.length > initialCount;
+---
+
+<section id="proyectos" class="projects-section">
+  <div class="wrap">
+    <div class="heading-row reveal">
+      <div>
+        <p class="eyebrow">// proyectos</p>
+        <h2 class="section-heading">Proyectos</h2>
+      </div>
+    </div>
+
+    <div class="projects-grid">
+      {
+        projects.map((project, i) => (
+          <article
+            class={`project-card reveal${i >= initialCount ? " project-card-extra" : ""}`}
+            style={`transition-delay:${(i % 3) * 80}ms`}
+          >
+            {project.screenshots && project.screenshots.length > 0 && (
+              <button
+                type="button"
+                class="project-preview"
+                data-project-lightbox={`project-${i}`}
+                aria-label={`Ver capturas de ${project.name}`}
+              >
+                <Image src={project.screenshots[0]} alt={`${project.name} — captura de pantalla`} width={480} class="preview-photo" />
+              </button>
+            )}
+
+            {project.placeholder && (
+              <div class="project-preview project-preview-restricted" aria-hidden="true">
+                <svg viewBox="0 0 24 24" class="restricted-icon" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="5" y="11" width="14" height="9" rx="1.5" />
+                  <path d="M8 11V7.5a4 4 0 0 1 8 0V11" />
+                </svg>
+                <p class="restricted-text mono">Sistema interno — sin capturas por motivos de seguridad</p>
+              </div>
+            )}
+
+            <div class="project-top">
+              <span class="status-badge mono" data-status={project.status}>
+                <span class="status-dot"></span>
+                {project.status}
+              </span>
+              <h3 class="project-name">{project.name}</h3>
+            </div>
+
+            <p class="project-desc">{project.description}</p>
+
+            <ul class="project-stack mono">
+              {project.stack.map((s) => (
+                <li>{s}</li>
+              ))}
+            </ul>
+
+            <p class="project-role mono">// {project.role}</p>
+            {project.privateRepo && <p class="project-repo mono">// repositorio privado</p>}
+
+            {(project.repoUrl || project.demoUrl) && (
+              <div class="project-links">
+                {project.repoUrl && (
+                  <a class="project-link mono" href={project.repoUrl} target="_blank" rel="noopener noreferrer">
+                    <span class="arrow">↗</span> Repositorio
+                  </a>
+                )}
+                {project.demoUrl && (
+                  <a class="project-link mono" href={project.demoUrl} target="_blank" rel="noopener noreferrer">
+                    <span class="arrow">↗</span> Demo
+                  </a>
+                )}
+              </div>
+            )}
+          </article>
+        ))
+      }
+    </div>
+
+    {
+      hasMore && (
+        <div class="show-more-row reveal">
+          <button type="button" class="show-more-btn mono" id="toggle-projects" aria-expanded="false">
+            <span class="toggle-label">Ver más proyectos</span> <span class="arrow">↓</span>
+          </button>
+        </div>
+      )
+    }
+  </div>
+
+  <div class="lightbox" id="project-lightbox" role="dialog" aria-modal="true" aria-hidden="true">
+    <button class="lightbox-close" id="project-lightbox-close" type="button" aria-label="Cerrar imagen">×</button>
+    <button class="lightbox-nav lightbox-prev" id="project-lightbox-prev" type="button" aria-label="Imagen anterior">‹</button>
+    <button class="lightbox-nav lightbox-next" id="project-lightbox-next" type="button" aria-label="Imagen siguiente">›</button>
+    {
+      projects.map((project, i) =>
+        project.screenshots?.map((shot, si) => (
+          <Image
+            src={shot}
+            alt={`${project.name} — captura ${si + 1}`}
+            width={1200}
+            class="lightbox-photo"
+            data-group={`project-${i}`}
+          />
+        ))
+      )
+    }
+  </div>
+</section>
+
+<script>
+  const toggleBtn = document.getElementById("toggle-projects");
+  const toggleLabel = toggleBtn?.querySelector<HTMLElement>(".toggle-label");
+  const extraCards = document.querySelectorAll<HTMLElement>(".project-card-extra");
+  let projectsExpanded = false;
+
+  toggleBtn?.addEventListener("click", () => {
+    projectsExpanded = !projectsExpanded;
+    extraCards.forEach((card) => card.classList.toggle("is-expanded", projectsExpanded));
+    toggleBtn.classList.toggle("is-expanded", projectsExpanded);
+    toggleBtn.setAttribute("aria-expanded", String(projectsExpanded));
+    if (toggleLabel) {
+      toggleLabel.textContent = projectsExpanded ? "Ver menos proyectos" : "Ver más proyectos";
+    }
+    if (!projectsExpanded) {
+      toggleBtn.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  });
+
+  const lightbox = document.getElementById("project-lightbox");
+  const closeBtn = document.getElementById("project-lightbox-close");
+  const prevBtn = document.getElementById("project-lightbox-prev");
+  const nextBtn = document.getElementById("project-lightbox-next");
+  const triggers = document.querySelectorAll<HTMLButtonElement>("[data-project-lightbox]");
+  const allPhotos = Array.from(document.querySelectorAll<HTMLImageElement>(".lightbox-photo"));
+
+  let currentGroup: HTMLImageElement[] = [];
+  let currentIndex = 0;
+
+  function showPhoto(index: number) {
+    if (currentGroup.length === 0) return;
+    currentIndex = (index + currentGroup.length) % currentGroup.length;
+    allPhotos.forEach((photo) => photo.classList.remove("is-active"));
+    currentGroup[currentIndex].classList.add("is-active");
+  }
+
+  function openLightbox(group: string) {
+    currentGroup = allPhotos.filter((photo) => photo.dataset.group === group);
+    showPhoto(0);
+    lightbox?.classList.add("is-open");
+    lightbox?.classList.toggle("has-multiple", currentGroup.length > 1);
+    lightbox?.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeLightbox() {
+    lightbox?.classList.remove("is-open");
+    lightbox?.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  triggers.forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      const group = trigger.dataset.projectLightbox;
+      if (group) openLightbox(group);
+    });
+  });
+
+  closeBtn?.addEventListener("click", closeLightbox);
+  prevBtn?.addEventListener("click", () => showPhoto(currentIndex - 1));
+  nextBtn?.addEventListener("click", () => showPhoto(currentIndex + 1));
+
+  lightbox?.addEventListener("click", (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (!lightbox?.classList.contains("is-open")) return;
+    if (e.key === "Escape") closeLightbox();
+    if (e.key === "ArrowLeft") showPhoto(currentIndex - 1);
+    if (e.key === "ArrowRight") showPhoto(currentIndex + 1);
+  });
+</script>
+
+<style>
+  .projects-section {
+    padding-block: var(--space-section);
+    border-top: 1px solid var(--line);
+  }
+
+  .heading-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+  }
+
+  .section-heading {
+    margin-top: 0.6rem;
+  }
+
+  .projects-grid {
+    margin-top: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  .project-card.project-card-extra {
+    display: none;
+  }
+
+  .project-card.project-card-extra.is-expanded {
+    display: flex;
+  }
+
+  .show-more-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.5rem;
+  }
+
+  .show-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: var(--fs-sm);
+    color: var(--accent);
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+  }
+
+  .show-more-btn:hover {
+    border-color: var(--accent);
+    color: var(--ink);
+    transform: translateY(-2px);
+  }
+
+  .show-more-btn .arrow {
+    color: var(--accent);
+    display: inline-block;
+    transition: transform 0.25s var(--ease-out);
+  }
+
+  .show-more-btn.is-expanded .arrow {
+    transform: rotate(180deg);
+  }
+
+  .project-card {
+    position: relative;
+    background: linear-gradient(165deg, var(--bg-elevated) 0%, var(--bg-elevated) 60%, var(--bg-elevated-2) 160%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+    transition: border-color 0.25s var(--ease-out), transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+  }
+
+  .project-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out);
+  }
+
+  .project-card:hover {
+    border-color: var(--accent-2);
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.65);
+  }
+
+  .project-card:hover::before {
+    opacity: 1;
+  }
+
+  .project-preview {
+    position: relative;
+    display: block;
+    width: calc(100% + 3.2rem);
+    padding: 0;
+    margin: -1.6rem -1.6rem 0.2rem;
+    overflow: hidden;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-elevated-2);
+    aspect-ratio: 16 / 10;
+    cursor: pointer;
+  }
+
+  .preview-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 0.3s var(--ease-out);
+  }
+
+  .project-preview::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10, 14, 23, 0.55), transparent 45%);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out);
+  }
+
+  .project-preview:hover .preview-photo {
+    transform: scale(1.05);
+  }
+
+  .project-preview:hover::after {
+    opacity: 1;
+  }
+
+  .project-preview-restricted {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: default;
+    background:
+      repeating-linear-gradient(135deg, rgba(139, 150, 171, 0.05) 0 10px, transparent 10px 20px),
+      var(--bg-elevated-2);
+    border-bottom-style: dashed;
+  }
+
+  .restricted-icon {
+    width: 28px;
+    height: 28px;
+    color: var(--ink-faint);
+  }
+
+  .restricted-text {
+    max-width: 26ch;
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+    line-height: 1.5;
+  }
+
+  .project-top {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .status-badge {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-size: var(--fs-2xs);
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(94, 234, 212, 0.1);
+    color: var(--accent-2);
+    border: 1px solid rgba(94, 234, 212, 0.3);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 3px currentColor;
+    opacity: 0.9;
+  }
+
+  .status-badge[data-status="EN PROGRESO"] {
+    background: rgba(255, 180, 84, 0.1);
+    color: var(--accent);
+    border-color: rgba(255, 180, 84, 0.3);
+  }
+
+  .project-name {
+    font-size: var(--fs-lg);
+    letter-spacing: -0.01em;
+  }
+
+  .project-desc {
+    color: var(--ink-muted);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+  }
+
+  .project-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .project-stack li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    font-size: var(--fs-2xs);
+    color: var(--ink-muted);
+    background: var(--bg-elevated-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.3rem 0.6rem;
+    transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+  }
+
+  .project-stack li::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    flex-shrink: 0;
+  }
+
+  .project-card:hover .project-stack li {
+    border-color: var(--line);
+    color: var(--ink);
+  }
+
+  .project-role {
+    padding-top: 0.2rem;
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+    border-top: 1px solid var(--line);
+  }
+
+  .project-repo {
+    font-size: var(--fs-2xs);
+    color: var(--ink-faint);
+  }
+
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-size: var(--fs-2xs);
+    color: var(--accent-2);
+    background: var(--bg-elevated-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.75rem;
+    transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out), background 0.2s var(--ease-out);
+  }
+
+  .project-link:hover {
+    border-color: var(--accent-2);
+    color: var(--ink);
+    background: rgba(94, 234, 212, 0.08);
+  }
+
+  .project-link .arrow {
+    color: var(--accent);
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1.5rem, 5vw, 3rem);
+    background: rgba(10, 14, 23, 0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s var(--ease-out), visibility 0.25s var(--ease-out);
+  }
+
+  .lightbox.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .lightbox-photo {
+    display: none;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.7);
+  }
+
+  .lightbox-photo.is-active {
+    display: block;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: clamp(1rem, 3vw, 2rem);
+    right: clamp(1rem, 3vw, 2rem);
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    line-height: 1;
+    color: var(--ink);
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+  }
+
+  .lightbox-close:hover {
+    border-color: var(--accent-2);
+    color: var(--accent-2);
+  }
+
+  .lightbox-nav {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--ink);
+    background: var(--bg-elevated);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+  }
+
+  .lightbox.has-multiple .lightbox-nav {
+    display: flex;
+  }
+
+  .lightbox-nav:hover {
+    border-color: var(--accent-2);
+    color: var(--accent-2);
+  }
+
+  .lightbox-prev {
+    left: clamp(0.5rem, 3vw, 2rem);
+  }
+
+  .lightbox-next {
+    right: clamp(0.5rem, 3vw, 2rem);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lightbox {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .lightbox-nav {
+      width: 38px;
+      height: 38px;
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .heading-row {
+      align-items: flex-start;
+    }
+
+    .project-card {
+      padding: 1.2rem;
+    }
+
+    .project-preview {
+      margin: -1.2rem -1.2rem 0.2rem;
+      width: calc(100% + 2.4rem);
+    }
+  }
+</style>
