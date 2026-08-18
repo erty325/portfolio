@@ -263,12 +263,11 @@ export const projects: Project[] = [
     name: "CreditoFuturo",
     status: "200 OK",
     description:
-      "Proyecto de práctica: sistema de gestión de créditos y préstamos con cálculo de mora, score de riesgo crediticio, dashboard financiero, control de pagos y cuadre de caja.",
+      "Sistema de gestión de créditos y préstamos con cálculo de mora, score de riesgo crediticio, dashboard financiero, control de pagos y cuadre de caja.",
     stack: ["FastAPI", "SQLAlchemy", "PostgreSQL", "JWT", "JavaScript"],
     role: "Desarrollo full stack: backend con FastAPI/PostgreSQL (lógica de mora, autenticación JWT) y frontend en HTML/CSS/JS",
     screenshots: [creditoFuturoLogin, creditoFuturoDashboard],
     repoUrl: "https://github.com/LoskoMiguel/CreditoFuturo",
-    demoUrl: "https://creditofuturo.vercel.app/",
   },
   {
     name: "StudyPass",

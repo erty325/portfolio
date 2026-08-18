@@ -50,6 +50,10 @@ import { nav, personal } from "../data/profile";
       {personal.available ? "disponible para trabajar" : "no disponible"}
     </div>
   </nav>
+
+  <a class="fab-cv-btn mono" href={personal.cvUrl} download aria-label="Descargar CV">
+    <span class="arrow">↓</span> Descargar CV
+  </a>
 </header>
 
 <script>
@@ -153,12 +157,17 @@ import { nav, personal } from "../data/profile";
     box-shadow: none;
   }
 
-  .cv-btn {
+  .cv-btn,
+  .mobile-cv-btn,
+  .fab-cv-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.5em;
+    font-family: var(--font-mono);
     font-size: var(--fs-2xs);
+    font-weight: 500;
     color: var(--accent);
+    background: transparent;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     padding: 0.5rem 0.85rem;
@@ -166,17 +175,30 @@ import { nav, personal } from "../data/profile";
     transition: border-color 0.2s var(--ease-out), color 0.2s var(--ease-out), transform 0.2s var(--ease-out);
   }
 
-  .cv-btn:hover {
+  .cv-btn:hover,
+  .mobile-cv-btn:hover,
+  .fab-cv-btn:hover {
     border-color: var(--accent);
     color: var(--ink);
     transform: translateY(-1px);
   }
 
-  .cv-btn .arrow {
+  .cv-btn:active,
+  .mobile-cv-btn:active,
+  .fab-cv-btn:active {
+    border-color: var(--accent);
+    color: var(--ink);
+    transform: scale(0.96);
+  }
+
+  .cv-btn .arrow,
+  .mobile-cv-btn .arrow,
+  .fab-cv-btn .arrow {
     color: var(--accent);
   }
 
-  .mobile-cv-btn {
+  .mobile-cv-btn,
+  .fab-cv-btn {
     display: none;
   }
 
@@ -239,18 +261,9 @@ import { nav, personal } from "../data/profile";
     }
 
     .mobile-cv-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
-      padding: 0.9rem clamp(1.25rem, 4vw, 2.5rem);
-      font-size: var(--fs-sm);
-      font-family: var(--font-mono);
-      color: var(--accent);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .mobile-cv-btn .arrow {
-      color: var(--accent);
+      display: inline-flex;
+      justify-content: center;
+      margin: 0.9rem clamp(1.25rem, 4vw, 2.5rem);
     }
 
     .mobile-status {
@@ -260,6 +273,17 @@ import { nav, personal } from "../data/profile";
       padding: 0.9rem clamp(1.25rem, 4vw, 2.5rem);
       font-size: var(--fs-2xs);
       color: var(--ink-muted);
+    }
+
+    .fab-cv-btn {
+      display: inline-flex;
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 60;
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
     }
   }
 </style>
